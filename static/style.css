@@ -206,6 +206,7 @@ h6 {
 
 .text-gradient {
     background: linear-gradient(to right, var(--secondary), var(--primary));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -347,27 +348,23 @@ footer {
 }
 
 
-/* Dashboard Layout */
+/* Dashboard Layout - Refactored to Single Column */
 .dashboard-layout {
-    display: flex;
-    gap: 2rem;
-    padding: 2rem 5%;
-    max-width: 1600px;
-    margin: 0 auto;
-    align-items: flex-start;
-}
-
-.dash-left {
-    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    padding: 2rem 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: stretch;
 }
 
+.dash-left,
 .dash-right {
-    width: 450px;
-    position: sticky;
-    top: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
 }
 
 .card {
@@ -457,7 +454,7 @@ textarea:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .preview-title {
@@ -534,6 +531,10 @@ textarea:focus {
 
 .label-table .text-right {
     text-align: right;
+}
+
+.label-table .text-center {
+    text-align: center;
 }
 
 .label-table .indent {

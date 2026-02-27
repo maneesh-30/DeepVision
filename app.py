@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, send_file, jsonify
 from engines.parser import parse_ingredients, standardize_units
 from engines.calculator import calculate_nutrition
 from engines.compliance import apply_compliance
+from engines.compliance_features import validate_health_claims, suggest_sodium_fix
 from engines.label_generator import generate_pdf
 from dotenv import load_dotenv
 
@@ -51,12 +52,24 @@ def generate():
         # 4. Apply Compliance (Rounding, formatting, allergens)
         compliant_data = apply_compliance(calc_data)
         
+        health_claims = validate_health_claims(calc_data['per_100g'])
+        
+        sodium_fix = None
+        if calc_data['per_100g']['sodium'] > 600:
+            sodium_fix = suggest_sodium_fix(
+                standardized_ingredients,
+                calc_data['per_100g']['sodium'],
+                final_yield_weight
+            )
+        
         # Merge form data with compliant data
         compliant_data.update({
             "product_name": product_name,
             "serving_size_g": serving_size_g,
             "servings_per_pack": servings_per_pack,
-            "fssai_license": fssai_license
+            "fssai_license": fssai_license,
+            "health_claims": health_claims,
+            "sodium_fix": sodium_fix
         })
 
         # 5. Generate PDF

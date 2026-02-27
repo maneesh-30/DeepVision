@@ -90,6 +90,105 @@
                 document.getElementById('badge-status').textContent = 'COMPLIANT';
                 document.getElementById('badge-status').className = 'badge-compliant';
 
+                // Health Claims
+                const hcSection = document.getElementById('health-claims-section');
+                if (data.health_claims) {
+                    hcSection.style.display = 'block';
+                    const qualTbody = document.getElementById('hc-qualified');
+                    const disTbody = document.getElementById('hc-disqualified');
+                    const hcNoClaims = document.getElementById('hc-no-claims');
+                    const hcQualContainer = document.getElementById('hc-qualified-container');
+
+                    qualTbody.innerHTML = '';
+                    disTbody.innerHTML = '';
+
+                    if (data.health_claims.qualified.length === 0) {
+                        hcNoClaims.style.display = 'block';
+                        hcQualContainer.style.display = 'none';
+                    } else {
+                        hcNoClaims.style.display = 'none';
+                        hcQualContainer.style.display = 'block';
+                        data.health_claims.qualified.forEach(q => {
+                            qualTbody.innerHTML += `
+                                <tr style="background: var(--gray-50);">
+                                    <td class="text-center"><strong>${q.claim}</strong></td>
+                                    <td class="text-center">${q.value}${q.unit}</td>
+                                    <td class="text-center"><span class="badge-compliant">Can print on packaging</span></td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    data.health_claims.disqualified.forEach(d => {
+                        disTbody.innerHTML += `
+                            <tr>
+                                <td class="text-center"><strong>${d.claim}</strong></td>
+                                <td class="text-center"><span class="badge-draft" style="background: var(--danger-light); color: var(--danger);">${d.gap}${d.unit} gap</span></td>
+                                <td class="text-center" style="font-size: 0.8rem; color: var(--gray-600);">${d.tip}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    hcSection.style.display = 'none';
+                }
+
+                // Sodium Fix
+                const sfSection = document.getElementById('sodium-fix-section');
+                if (data.sodium_fix) {
+                    sfSection.style.display = 'block';
+                    document.getElementById('sod-fix-current').textContent = data.sodium_fix.current_sodium_100g;
+                    document.getElementById('sod-fix-excess').textContent = (data.sodium_fix.current_sodium_100g - 600).toFixed(1);
+
+                    const sfContributors = document.getElementById('sod-fix-contributors');
+                    sfContributors.innerHTML = '';
+                    data.sodium_fix.contributors.forEach(c => {
+                        sfContributors.innerHTML += `
+                            <tr>
+                                <td class="text-center" style="text-transform: capitalize;">${c.name}</td>
+                                <td class="text-center">${c.contribution_mg.toFixed(1)}mg</td>
+                                <td class="text-center">
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                        ${c.percentage.toFixed(1)}%
+                                        <div style="width: 40px; height: 4px; background: var(--gray-200); border-radius: 2px; overflow: hidden;">
+                                            <div style="width: ${c.percentage}%; height: 100%; background: var(--danger);"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    const sfCards = document.getElementById('sod-fix-cards');
+                    sfCards.innerHTML = '';
+                    let fixCount = 0;
+                    data.sodium_fix.fixes.forEach(f => {
+                        fixCount++;
+                        let isLastCard = fixCount === data.sodium_fix.fixes.length;
+                        let isFixed = isLastCard && data.sodium_fix.is_fully_fixed;
+                        let borderColor = isFixed ? 'var(--success)' : 'var(--secondary)';
+                        let badgeHtml = isFixed ? `<span class="badge-compliant" style="background: var(--success); color: white;">Fixed — ${f.sodium_removed}mg</span>` : `<span class="badge-draft" style="background: #fef08a; color: #854d0e;">Apply next fix too</span>`;
+
+                        let tasteNote = f.is_primary ? `<div style="font-size: 0.75rem; color: var(--gray-500); font-style: italic; margin-top: 0.5rem;">Reducing salt affects taste. Consider potassium chloride substitute.</div>` : '';
+
+                        sfCards.innerHTML += `
+                            <div style="border: 1px solid var(--gray-200); border-left: 4px solid ${borderColor}; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 0.5rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                    <strong style="text-transform: capitalize;">Fix: ${f.name}</strong>
+                                    ${badgeHtml}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+                                    Change from <span style="background: var(--danger-light); color: var(--danger-dark); padding: 0.1rem 0.4rem; border-radius: 99px;">${f.old_qty}g</span>
+                                    →
+                                    <span style="background: #dcfce7; color: #166534; padding: 0.1rem 0.4rem; border-radius: 99px; font-weight: 700;">${f.new_qty}g</span>
+                                </div>
+                                ${tasteNote}
+                            </div>
+                        `;
+                    });
+                } else {
+                    sfSection.style.display = 'none';
+                }
+
             } catch (err) {
                 errorBox.textContent = "Error: " + err.message;
                 errorBox.style.display = 'block';
@@ -97,6 +196,18 @@
                 btn.disabled = false;
                 btn.innerHTML = "✨ Generate Nutrition Label";
                 overlay.classList.remove('active');
+            }
+        }
+
+        function toggleDetails() {
+            const table = document.getElementById('hc-disqualified-table');
+            const btn = document.getElementById('hc-toggle-btn');
+            if (table.style.display === 'none') {
+                table.style.display = 'table';
+                btn.textContent = 'Hide Details';
+            } else {
+                table.style.display = 'none';
+                btn.textContent = 'Show Details';
             }
         }
     </script>
@@ -126,267 +237,346 @@
     </nav>
 
     <div class="dashboard-layout">
-        <!-- Left Column: Form -->
-        <div class="dash-left">
-            <div>
-                <h2>LabelSure Generator</h2>
-                <p style="color: var(--gray-500); font-size: 0.95rem;">Create and validate FSSAI compliant nutrition
-                    labels instantly.</p>
-            </div>
+        <div>
+            <h2>LabelSure Generator</h2>
+            <p style="color: var(--gray-500); font-size: 0.95rem;">Create and validate FSSAI compliant nutrition
+                labels instantly.</p>
+        </div>
 
-            <form onsubmit="generateLabel(event)" id="recipeForm">
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <div class="card-header">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Product Details
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Product Name</label>
-                            <input type="text" name="product_name" placeholder="e.g. Organic Almond Butter" required>
-                        </div>
-                        <div class="form-group">
-                            <label>FSSAI License No. <span style="color: var(--success);">✓</span></label>
-                            <input type="text" name="fssai_license" placeholder="14-digit number">
-                        </div>
-                    </div>
+        <form onsubmit="generateLabel(event)" id="recipeForm"
+            style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Product Details
                 </div>
-
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <div class="card-header" style="justify-content: space-between;">
-                        <span style="display: flex; align-items: center; gap: 0.5rem;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path
-                                    d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
-                                </path>
-                            </svg>
-                            Recipe Input
-                        </span>
-                        <span
-                            style="font-size: 0.7rem; color: var(--secondary); background: #e0f2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">NATURAL
-                            LANGUAGE SUPPORTED</span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" name="product_name" placeholder="e.g. Organic Almond Butter" required>
                     </div>
                     <div class="form-group">
-                        <label>Ingredients & Quantities</label>
-                        <textarea name="ingredients" rows="5"
-                            placeholder="Example: 500g Raw Almonds, 10g Himalayan Sea Salt, 5ml Honey..."
-                            required></textarea>
-                        <div class="input-note" style="margin-top: 0.5rem;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
-                                style="color: var(--gray-400);">
-                                <path
-                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                            </svg>
-                            Tip: You can paste your entire recipe here; our AI will extract ingredients automatically.
-                        </div>
+                        <label>FSSAI License No. <span style="color: var(--success);">✓</span></label>
+                        <input type="text" name="fssai_license" placeholder="14-digit number">
                     </div>
                 </div>
+            </div>
 
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <div class="card-header">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header" style="justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
-                            <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                            <path
+                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                            </path>
                         </svg>
-                        Weight & Serving
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Total Batch Yield (g/ml)</label>
-                            <div style="position: relative;">
-                                <input type="number" name="yield_weight" step="0.1" placeholder="515">
-                                <span
-                                    style="position: absolute; right: 15px; top: 12px; color: var(--gray-400); font-size: 0.9rem;">g</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Net Weight per pack (g)</label>
-                            <div style="position: relative;">
-                                <input type="number" name="net_weight" step="0.1" placeholder="e.g. 500" required>
-                                <span
-                                    style="position: absolute; right: 15px; top: 12px; color: var(--gray-400); font-size: 0.9rem;">g</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Serving Size</label>
-                            <div style="position: relative;">
-                                <input type="number" name="serving_size" step="0.1" placeholder="32" required>
-                                <span
-                                    style="position: absolute; right: 15px; top: 12px; color: var(--gray-400); font-size: 0.9rem;">g</span>
-                            </div>
-                        </div>
-                    </div>
+                        Recipe Input
+                    </span>
+                    <span
+                        style="font-size: 0.7rem; color: var(--secondary); background: #e0f2fe; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">NATURAL
+                        LANGUAGE SUPPORTED</span>
                 </div>
-
-                <div id="error-message"
-                    style="display: none; color: var(--danger); background: var(--danger-light); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; border: 1px solid #fecaca; font-weight: 600;">
-                </div>
-
-                <button type="submit" class="btn generate-btn" id="submitBtn">✨ Generate Nutrition Label</button>
-            </form>
-        </div>
-
-        <!-- Right Column: Live Preview -->
-        <div class="dash-right">
-            <div class="card" style="position: relative; overflow: hidden; padding-bottom: 1.5rem;">
-                <div id="loading-overlay">
-                    <div class="spinner"></div> Generating...
-                </div>
-
-                <div class="preview-header">
-                    <div class="preview-title">Live Label Preview</div>
-                    <div class="preview-badges">
-                        <span id="badge-status" class="badge-draft">DRAFT</span>
-                    </div>
-                </div>
-
-                <div class="nutrition-label">
-                    <h2>NUTRITION FACTS</h2>
-                    <div class="label-info">
-                        <span>Servings per container:</span>
-                        <span id="res-servings">--</span>
-                    </div>
-                    <div class="label-info" style="border-bottom: 5px solid black; margin-bottom: 0.5rem;">
-                        <span>Serving size</span>
-                        <span><span id="res-size">--</span>g</span>
-                    </div>
-
-                    <table class="label-table">
-                        <thead>
-                            <tr>
-                                <th>Nutrients</th>
-                                <th class="text-right">Per 100g</th>
-                                <th class="text-right">Per Serving</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Energy (kcal)</strong></td>
-                                <td class="text-right" id="val-en-100">--</td>
-                                <td class="text-right" id="val-en-serv">--</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Protein (g)</strong></td>
-                                <td class="text-right" id="val-pro-100">--</td>
-                                <td class="text-right" id="val-pro-serv">--</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total Fat (g)</strong></td>
-                                <td class="text-right" id="val-fat-100">--</td>
-                                <td class="text-right" id="val-fat-serv">--</td>
-                            </tr>
-                            <tr>
-                                <td class="indent">Saturated Fat (g)</td>
-                                <td class="text-right" id="val-sat-100">--</td>
-                                <td class="text-right" id="val-sat-serv">--</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total Carbohydrates (g)</strong></td>
-                                <td class="text-right" id="val-carb-100">--</td>
-                                <td class="text-right" id="val-carb-serv">--</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total Sugars (g)</strong></td>
-                                <td class="text-right" id="val-sug-100">--</td>
-                                <td class="text-right" id="val-sug-serv">--</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Sodium (mg)</strong></td>
-                                <td class="text-right" id="val-sod-100">--</td>
-                                <td class="text-right" id="val-sod-serv">--</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div id="sodium-warning" class="high-sodium">
-                        ⚠️ HIGH IN SODIUM
-                    </div>
-
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--gray-300); padding-top: 0.5rem; margin-top: 1rem;">
-                        <div class="veg-mark">
-                            <div id="veg-icon" class="veg-icon"></div>
-                            <span id="veg-text">Vegetarian</span>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.5rem; letter-spacing: 0.05em; color: var(--gray-500);">ALLERGEN
-                                INFORMATION</div>
-                            <div class="allergen-info" style="margin-top: 0.1rem; font-weight: 700;">
-                                <span id="res-allergen">--</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="#" id="download-pdf" target="_blank" class="btn btn-dark"
-                    style="width: 100%; margin-bottom: 0.75rem;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Download PDF Label
-                </a>
-
-                <div class="action-row">
-                    <button class="btn btn-outline" style="flex: 1; font-size: 0.85rem;" type="button">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                <div class="form-group">
+                    <label>Ingredients & Quantities</label>
+                    <textarea name="ingredients" rows="5"
+                        placeholder="Example: 500g Raw Almonds, 10g Himalayan Sea Salt, 5ml Honey..."
+                        required></textarea>
+                    <div class="input-note" style="margin-top: 0.5rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
+                            style="color: var(--gray-400);">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                         </svg>
-                        Copy Specs
-                    </button>
-                    <button class="btn btn-outline" style="flex: 1; font-size: 0.85rem;" type="button">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="18" cy="5" r="3"></circle>
-                            <circle cx="6" cy="12" r="3"></circle>
-                            <circle cx="18" cy="19" r="3"></circle>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                        </svg>
-                        Share Link
-                    </button>
+                        Tip: You can paste your entire recipe here; our AI will extract ingredients automatically.
+                    </div>
                 </div>
             </div>
 
-            <div class="info-box">
-                <strong>
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                    </svg>
+                    Weight & Serving
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Batch Yield (g/ml)</label>
+                        <div style="position: relative;">
+                            <input type="number" name="yield_weight" step="0.1" placeholder="515">
+                            <span
+                                style="position: absolute; right: 15px; top: 12px; color: var(--gray-400); font-size: 0.9rem;">g</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Net Weight per pack (g)</label>
+                        <div style="position: relative;">
+                            <input type="number" name="net_weight" step="0.1" placeholder="e.g. 500" required>
+                            <span
+                                style="position: absolute; right: 15px; top: 12px; color: var(--gray-400); font-size: 0.9rem;">g</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Serving Size</label>
+                        <div style="position: relative;">
+                            <input type="number" name="serving_size" step="0.1" placeholder="32" required>
+                            <span
+                                style="position: absolute; right: 15px; top: 12px; color: var(--gray-400); font-size: 0.9rem;">g</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-message"
+                style="display: none; color: var(--danger); background: var(--danger-light); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; border: 1px solid #fecaca; font-weight: 600;">
+            </div>
+
+            <button type="submit" class="btn generate-btn" id="submitBtn">✨ Generate Nutrition Label</button>
+        </form>
+
+        <!-- Live Preview -->
+        <div class="card" style="position: relative; overflow: hidden; padding-bottom: 1.5rem;">
+            <div id="loading-overlay">
+                <div class="spinner"></div> Generating...
+            </div>
+
+            <div class="preview-header">
+                <div class="preview-title">Live Label Preview</div>
+                <div class="preview-badges">
+                    <span id="badge-status" class="badge-draft">DRAFT</span>
+                </div>
+            </div>
+
+            <div class="nutrition-label">
+                <h2>NUTRITION FACTS</h2>
+                <div class="label-info">
+                    <span>Servings per container:</span>
+                    <span id="res-servings">--</span>
+                </div>
+                <div class="label-info" style="border-bottom: 5px solid black; margin-bottom: 0.5rem;">
+                    <span>Serving size</span>
+                    <span><span id="res-size">--</span>g</span>
+                </div>
+
+                <table class="label-table">
+                    <thead>
+                        <tr>
+                            <th>Nutrients</th>
+                            <th class="text-right">Per 100g</th>
+                            <th class="text-right">Per Serving</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Energy (kcal)</strong></td>
+                            <td class="text-right" id="val-en-100">--</td>
+                            <td class="text-right" id="val-en-serv">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Protein (g)</strong></td>
+                            <td class="text-right" id="val-pro-100">--</td>
+                            <td class="text-right" id="val-pro-serv">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Fat (g)</strong></td>
+                            <td class="text-right" id="val-fat-100">--</td>
+                            <td class="text-right" id="val-fat-serv">--</td>
+                        </tr>
+                        <tr>
+                            <td class="indent">Saturated Fat (g)</td>
+                            <td class="text-right" id="val-sat-100">--</td>
+                            <td class="text-right" id="val-sat-serv">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Carbohydrates (g)</strong></td>
+                            <td class="text-right" id="val-carb-100">--</td>
+                            <td class="text-right" id="val-carb-serv">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Sugars (g)</strong></td>
+                            <td class="text-right" id="val-sug-100">--</td>
+                            <td class="text-right" id="val-sug-serv">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sodium (mg)</strong></td>
+                            <td class="text-right" id="val-sod-100">--</td>
+                            <td class="text-right" id="val-sod-serv">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div id="sodium-warning" class="high-sodium">
+                    ⚠️ HIGH IN SODIUM
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--gray-300); padding-top: 0.5rem; margin-top: 1rem;">
+                    <div class="veg-mark">
+                        <div id="veg-icon" class="veg-icon"></div>
+                        <span id="veg-text">Vegetarian</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.5rem; letter-spacing: 0.05em; color: var(--gray-500);">ALLERGEN
+                            INFORMATION</div>
+                        <div class="allergen-info" style="margin-top: 0.1rem; font-weight: 700;">
+                            <span id="res-allergen">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#" id="download-pdf" target="_blank" class="btn btn-dark"
+                style="width: 100%; margin-bottom: 0.75rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF Label
+            </a>
+
+            <div class="action-row">
+                <button class="btn btn-outline" style="flex: 1; font-size: 0.85rem;" type="button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                    FSSAI Compliance Check
-                </strong>
-                Your recipe logic leverages LLMs to map inputs accurately to USDA and IFCT 2017 sources. Ensure "Added
-                Sugars" are explicitly mentioned if honey or syrups are used to maintain highest fidelity.
+                    Copy Specs
+                </button>
+                <button class="btn btn-outline" style="flex: 1; font-size: 0.85rem;" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    Share Link
+                </button>
             </div>
         </div>
-    </div>
 
-    <footer
-        style="margin-top: 2rem; border-top: 1px solid var(--gray-200); padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; color: var(--gray-500); font-size: 0.85rem; background: white;">
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: var(--secondary);">
-                <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-            </svg>
-            &copy; 2026 LabelSure. FSSAI Gazetted Standard compliant.
+        <!-- Sodium Fix Section -->
+        <div id="sodium-fix-section" class="card"
+            style="display: none; margin-bottom: 1.5rem; border-left: 4px solid var(--danger);">
+            <div class="card-header" style="color: var(--danger-dark);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                    </path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                High Sodium — Recipe Fix Suggestions
+            </div>
+            <div
+                style="background: var(--danger-light); color: var(--danger-dark); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem;">
+                <strong>Current Sodium:</strong> <span id="sod-fix-current"></span>mg/100g<br>
+                <strong>FSSAI Limit:</strong> 600mg/100g<br>
+                <strong>Excess:</strong> <span id="sod-fix-excess"
+                    style="color: var(--danger); font-weight: 700;"></span>mg
+            </div>
+            <table class="label-table" style="margin-bottom: 1rem;">
+                <thead>
+                    <tr>
+                        <th class="text-center">Ingredient</th>
+                        <th class="text-center">Contributed</th>
+                        <th class="text-center">% of Total</th>
+                    </tr>
+                </thead>
+                <tbody id="sod-fix-contributors">
+                </tbody>
+            </table>
+            <div id="sod-fix-cards"></div>
         </div>
-        <div style="display: flex; gap: 1.5rem;">
-            <a href="#">Documentation</a>
-            <a href="#">API Reference</a>
-            <a href="#">Support</a>
+
+        <!-- Health Claim Validator Section -->
+        <div id="health-claims-section" class="card" style="display: none;">
+            <div class="card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="color: var(--secondary);">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Health Claim Validator
+            </div>
+            <div style="font-size: 0.75rem; color: var(--gray-500); margin-top: -1rem; margin-bottom: 1rem;">
+                Based on FSSAI Food Safety and Standards (Labelling and Display) Regulations 2020
+            </div>
+
+            <div id="hc-no-claims" class="info-box"
+                style="display: none; background: #fef08a; color: #854d0e; border-color: #fde047; margin-top: 0; margin-bottom: 1rem;">
+                <strong>No Qualified Claims</strong>
+                This recipe does not currently meet any FSSAI health claim thresholds. View details below to see
+                how
+                to
+                qualify.
+            </div>
+
+            <div id="hc-qualified-container">
+                <table class="label-table" style="margin-bottom: 1rem;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Qualified Claim</th>
+                            <th class="text-center">Your Value</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hc-qualified">
+                    </tbody>
+                </table>
+            </div>
+
+            <button type="button" class="btn btn-outline" style="width: 100%; font-size: 0.85rem;" id="hc-toggle-btn"
+                onclick="toggleDetails()">Show Details</button>
+
+            <table class="label-table" id="hc-disqualified-table" style="display: none; margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th class="text-center">Claim</th>
+                        <th class="text-center">Gap</th>
+                        <th class="text-center">How to Qualify</th>
+                    </tr>
+                </thead>
+                <tbody id="hc-disqualified">
+                </tbody>
+            </table>
         </div>
-    </footer>
+
+        <div class="info-box">
+            <strong>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                FSSAI Compliance Check
+            </strong>
+            Your recipe logic leverages LLMs to map inputs accurately to USDA and IFCT 2017 sources. Ensure
+            "Added
+            Sugars" are explicitly mentioned if honey or syrups are used to maintain highest fidelity.
+        </div>
+
+        <footer
+            style="margin-top: 2rem; border-top: 1px solid var(--gray-200); padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; color: var(--gray-500); font-size: 0.85rem; background: white;">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: var(--secondary);">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                </svg>
+                &copy; 2026 LabelSure. FSSAI Gazetted Standard compliant.
+            </div>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="#">Documentation</a>
+                <a href="#">API Reference</a>
+                <a href="#">Support</a>
+            </div>
+        </footer>
 </body>
 
 </html>
