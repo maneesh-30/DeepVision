@@ -1,0 +1,14 @@
+# Environments
+venv/
+.env
+
+# Database
+database/nutrition.db
+
+# Generated PDFs
+static/pdfs/*.pdf
+test_e2e_label.pdf
+
+# Python Cache
+__pycache__/
+*.pyc

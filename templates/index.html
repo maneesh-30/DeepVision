@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FSSAI Nutrition Label Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FSSAI Nutrition Label Generator</h1>
+            <p>Generate compliant, accurate nutrition labels directly from rough recipes</p>
+        </header>
+
+        <form action="/generate" method="POST" id="labelForm" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="product_name">Product Name</label>
+                <input type="text" id="product_name" name="product_name" placeholder="e.g. Whole Wheat Biscuit" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ingredients">Recipe / Ingredients</label>
+                <textarea id="ingredients" name="ingredients" rows="6" placeholder="Enter ingredients here, one per line (e.g. 150g wheat flour, 60g sugar, 1 whole egg, a pinch of salt)" required></textarea>
+                <small>The system will auto-parse units, quantities, and map them to IFCT 2017 profiles.</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="yield_weight">Final Yield Weight (g)</label>
+                    <input type="number" id="yield_weight" name="yield_weight" step="0.1" placeholder="Weight after cooking">
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="use_raw_weight" name="use_raw_weight" onchange="toggleYield()">
+                    <label for="use_raw_weight">Use sum of raw ingredients instead</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="serving_size">Serving Size (g)</label>
+                    <input type="number" id="serving_size" name="serving_size" step="0.1" placeholder="e.g. 30" required>
+                </div>
+                <div class="form-group">
+                    <label for="net_weight">Net Weight per pack (g)</label>
+                    <input type="number" id="net_weight" name="net_weight" step="0.1" placeholder="e.g. 300" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fssai_license">FSSAI License Number (14 digits) [Optional if not registered]</label>
+                <input type="text" id="fssai_license" name="fssai_license" placeholder="e.g. 12345678901234">
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">Generate Compliant Label</button>
+            
+            <div id="loading" class="hidden">
+                <p>⚙️ Analyzing recipe and ensuring compliance...</p>
+            </div>
+            
+            <div id="error-message" class="error hidden"></div>
+        </form>
+    </div>
+
+    <script>
+        function toggleYield() {
+            const yieldInput = document.getElementById("yield_weight");
+            const useRaw = document.getElementById("use_raw_weight").checked;
+            if (useRaw) {
+                yieldInput.value = "";
+                yieldInput.disabled = true;
+                yieldInput.removeAttribute('required');
+            } else {
+                yieldInput.disabled = false;
+                yieldInput.setAttribute('required', 'true');
+            }
+        }
+        
+        // Initialize state on load
+        toggleYield();
+
+        function validateForm() {
+            const licenseNo = document.getElementById("fssai_license").value.trim();
+            if (licenseNo && !/^[0-9]{14}$/.test(licenseNo)) {
+                alert("FSSAI License Number must be exactly 14 digits if provided.");
+                return false;
+            }
+            
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            
+            return true;
+        }
+
+        // Handle possible JSON errors returned if request was intercepted via Fetch (not active in standard form submission unless we override, but good to have)
+    </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Label - {{ data.product_name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container result-container">
+        
+        <div class="actions">
+            <a href="/" class="btn btn-secondary">← Back to Editor</a>
+            <a href="{{ data.pdf_url }}" download class="btn btn-primary">⬇ Download PDF Label</a>
+        </div>
+
+        {% if data.sodium_warning %}
+        <div class="alert warning">
+            <strong>HIGH SODIUM</strong> — This product contains more than 600mg of sodium per 100g.
+        </div>
+        {% endif %}
+
+        <h2>Label Preview: {{ data.product_name }}</h2>
+        
+        <div class="label-preview">
+            <div class="label-header">
+                <h3>NUTRITION INFORMATION</h3>
+                <p>Serving Size: {{ data.serving_size_g }}g | Servings Per Pack: ~{{ data.servings_per_pack }}</p>
+            </div>
+            
+            <table class="nutrition-table">
+                <thead>
+                    <tr>
+                        <th class="col-left">Nutrient</th>
+                        <th>Per 100g</th>
+                        <th>Per Serving ({{ data.serving_size_g }}g)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-left">Energy</td>
+                        <td>{{ data.per_100g.energy }} kcal</td>
+                        <td>{{ data.per_serving.energy }} kcal</td>
+                    </tr>
+                    <tr>
+                        <td class="col-left">Protein</td>
+                        <td>{{ data.per_100g.protein }} g</td>
+                        <td>{{ data.per_serving.protein }} g</td>
+                    </tr>
+                    <tr>
+                        <td class="col-left">Carbohydrate</td>
+                        <td>{{ data.per_100g.carbs }} g</td>
+                        <td>{{ data.per_serving.carbs }} g</td>
+                    </tr>
+                    <tr class="sub-row">
+                        <td class="col-left">of which Total Sugars</td>
+                        <td>{{ data.per_100g.sugar }} g</td>
+                        <td>{{ data.per_serving.sugar }} g</td>
+                    </tr>
+                    {% if data.show_added_sugar %}
+                    <tr class="sub-row">
+                        <td class="col-left">of which Added Sugars</td>
+                        <td>{{ data.per_100g.added_sugar }} g</td>
+                        <td>{{ data.per_serving.added_sugar }} g</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="col-left">Total Fat</td>
+                        <td>{{ data.per_100g.fat }} g</td>
+                        <td>{{ data.per_serving.fat }} g</td>
+                    </tr>
+                    <tr class="sub-row">
+                        <td class="col-left">of which Saturated Fat</td>
+                        <td>{{ data.per_100g.sat_fat }} g</td>
+                        <td>{{ data.per_serving.sat_fat }} g</td>
+                    </tr>
+                    <tr class="sub-row">
+                        <td class="col-left">of which Trans Fat</td>
+                        <td>{{ data.per_100g.trans_fat }} g</td>
+                        <td>{{ data.per_serving.trans_fat }} g</td>
+                    </tr>
+                    <tr>
+                        <td class="col-left">Sodium</td>
+                        <td>{{ data.per_100g.sodium }} mg</td>
+                        <td>{{ data.per_serving.sodium }} mg</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="label-ingredients">
+                <p><strong>Ingredients:</strong> 
+                {% for item in data.ingredients %}
+                    {% set total = data.ingredients | sum(attribute='quantity') %}
+                    {% set pct = (item.quantity / total * 100) | round | int %}
+                    {{ item.name.title() }} ({{ pct }}%){% if not loop.last %}, {% endif %}
+                {% endfor %}
+                </p>
+                <p><strong>{{ data.allergen_statement }}</strong></p>
+            </div>
+
+            <div class="label-footer">
+                <div class="veg-badge">
+                    {% if data.veg_type == 'veg' %}
+                    <span class="dot veg"></span> VEGETARIAN
+                    {% else %}
+                    <span class="dot non-veg"></span> NON-VEGETARIAN
+                    {% endif %}
+                </div>
+                <div class="fssai-lic">
+                    {% if data.fssai_license %}
+                    FSSAI Lic. No.: {{ data.fssai_license }}
+                    {% else %}
+                    FSSAI Lic. No.: NOT PROVIDED
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if data.show_disclaimer %}
+            <div class="disclaimer">
+                * Nutritional values are estimated based on raw ingredient weights. For certified accuracy, use lab-tested final product weight.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
