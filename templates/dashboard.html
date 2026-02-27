@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabelSure Generator Dashboard</title>
+    <title>NutriComply Generator Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
     <script>
         async function generateLabel(event) {
@@ -220,25 +220,29 @@
             <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z" />
             </svg>
-            LabelSure
+            <a href="/" style="color: inherit; text-decoration: none;">NutriComply</a>
         </div>
         <div class="nav-links">
-            <a href="#" style="color: var(--secondary); font-weight: 700;">Dashboard</a>
-            <a href="#">Recipes</a>
-            <a href="#">History</a>
+            <a href="/dashboard" style="color: var(--secondary); font-weight: 700;">Dashboard</a>
+            <a href="/history">History</a>
             <a href="#">Settings</a>
         </div>
         <div class="nav-actions">
-            <button class="btn btn-secondary">Upgrade Plan</button>
+            {% if current_user and current_user.is_authenticated %}
             <div
-                style="width: 36px; height: 36px; background: #fed7aa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #9a3412;">
-                JD</div>
+                style="width: 36px; height: 36px; background: #fed7aa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #9a3412; font-size: 0.8rem;">
+                {{ current_user.name[:2]|upper }}
+            </div>
+            <a href="/logout" class="btn btn-outline" style="font-size: 0.85rem;">Logout</a>
+            {% else %}
+            <a href="/login" class="btn btn-outline">Login</a>
+            {% endif %}
         </div>
     </nav>
 
     <div class="dashboard-layout">
         <div>
-            <h2>LabelSure Generator</h2>
+            <h2>NutriComply Generator</h2>
             <p style="color: var(--gray-500); font-size: 0.95rem;">Create and validate FSSAI compliant nutrition
                 labels instantly.</p>
         </div>
@@ -569,7 +573,7 @@
                     <path
                         d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                 </svg>
-                &copy; 2026 LabelSure. FSSAI Gazetted Standard compliant.
+                &copy; 2026 NutriComply. FSSAI Gazetted Standard compliant.
             </div>
             <div style="display: flex; gap: 1.5rem;">
                 <a href="#">Documentation</a>
