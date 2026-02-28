@@ -91,13 +91,27 @@ def generate_pdf(label_data, output_path):
     veg_symbol_color = "🟢" if veg_type == "veg" else "🟤"
     veg_symbol_text = "VEGETARIAN" if veg_type == "veg" else "NON-VEGETARIAN"
     
-    fssai_license = label_data.get('fssai_license', 'NOT PROVIDED')
+    fssai_license = label_data.get('fssai_license', '')
+    if not fssai_license or not fssai_license.strip():
+        fssai_license = 'To Be Updated'
     
     bottom_style = ParagraphStyle("Bottom", fontSize=10, fontName="Helvetica-Bold", leading=14)
     elements.append(Paragraph(
         f"{veg_symbol_color} {veg_symbol_text}          FSSAI Lic. No.: {fssai_license}",
         bottom_style
     ))
+    
+    # Company name and manufacturer address
+    company_name = label_data.get('company_name', '')
+    manufacturer_address = label_data.get('manufacturer_address', '')
+    
+    if company_name or manufacturer_address:
+        elements.append(Spacer(1, 2*mm))
+        company_style = ParagraphStyle("Company", fontSize=9, leading=12)
+        if company_name:
+            elements.append(Paragraph(f"<b>Manufactured by:</b> {company_name}", company_style))
+        if manufacturer_address:
+            elements.append(Paragraph(f"<b>Address:</b> {manufacturer_address}", company_style))
 
     # Disclaimer if raw weight used
     if label_data.get("show_disclaimer"):

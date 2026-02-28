@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,10 @@
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="container result-container">
-        
+
         <div class="actions">
             <a href="/" class="btn btn-secondary">← Back to Editor</a>
             <a href="{{ data.pdf_url }}" download class="btn btn-primary">⬇ Download PDF Label</a>
@@ -22,13 +24,13 @@
         {% endif %}
 
         <h2>Label Preview: {{ data.product_name }}</h2>
-        
+
         <div class="label-preview">
             <div class="label-header">
                 <h3>NUTRITION INFORMATION</h3>
                 <p>Serving Size: {{ data.serving_size_g }}g | Servings Per Pack: ~{{ data.servings_per_pack }}</p>
             </div>
-            
+
             <table class="nutrition-table">
                 <thead>
                     <tr>
@@ -89,12 +91,12 @@
             </table>
 
             <div class="label-ingredients">
-                <p><strong>Ingredients:</strong> 
-                {% for item in data.ingredients %}
+                <p><strong>Ingredients:</strong>
+                    {% for item in data.ingredients %}
                     {% set total = data.ingredients | sum(attribute='quantity') %}
                     {% set pct = (item.quantity / total * 100) | round | int %}
                     {{ item.name.title() }} ({{ pct }}%){% if not loop.last %}, {% endif %}
-                {% endfor %}
+                    {% endfor %}
                 </p>
                 <p><strong>{{ data.allergen_statement }}</strong></p>
             </div>
@@ -111,17 +113,19 @@
                     {% if data.fssai_license %}
                     FSSAI Lic. No.: {{ data.fssai_license }}
                     {% else %}
-                    FSSAI Lic. No.: NOT PROVIDED
+                    FSSAI Lic. No.: To Be Updated
                     {% endif %}
                 </div>
             </div>
 
             {% if data.show_disclaimer %}
             <div class="disclaimer">
-                * Nutritional values are estimated based on raw ingredient weights. For certified accuracy, use lab-tested final product weight.
+                * Nutritional values are estimated based on raw ingredient weights. For certified accuracy, use
+                lab-tested final product weight.
             </div>
             {% endif %}
         </div>
     </div>
 </body>
+
 </html>

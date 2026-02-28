@@ -35,6 +35,23 @@ def init_db():
     ''')
     
     conn.commit()
+    
+    # Create user_settings table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS user_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE NOT NULL,
+        default_license TEXT DEFAULT '',
+        default_serving_size REAL DEFAULT 0,
+        default_company_name TEXT DEFAULT '',
+        default_address TEXT DEFAULT '',
+        email_notifications INTEGER DEFAULT 0,
+        score_alert INTEGER DEFAULT 1,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+    
+    conn.commit()
     conn.close()
     print("Database initialized successfully.")
 

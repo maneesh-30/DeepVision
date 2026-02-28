@@ -2,249 +2,86 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Label History — NutriComply</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#12af83", "background-light": "#f6f8f7" },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
     <style>
-        .history-layout {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 5%;
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .history-header h2 {
-            font-size: 1.75rem;
-        }
-
-        .history-header p {
-            color: var(--gray-500);
-            font-size: 0.9rem;
-        }
-
-        .history-table-wrapper {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-200);
-            overflow: hidden;
-        }
-
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .history-table thead {
-            background: var(--gray-50);
-        }
-
-        .history-table th {
-            text-align: left;
-            padding: 0.85rem 1.25rem;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: var(--gray-600);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .history-table td {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--gray-100);
-            color: var(--dark);
-            vertical-align: middle;
-        }
-
-        .history-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .history-table tr:hover {
-            background: var(--gray-50);
-        }
-
-        .score-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            font-weight: 700;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 9999px;
-        }
-
-        .score-high {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .score-mid {
-            background: #fef08a;
-            color: #854d0e;
-        }
-
-        .score-low {
-            background: var(--danger-light);
-            color: var(--danger-dark);
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .action-btns a,
-        .action-btns button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--gray-200);
-            background: white;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            color: var(--gray-600);
-        }
-
-        .action-btns a:hover {
-            background: #e0f2fe;
-            border-color: var(--secondary);
-            color: var(--secondary);
-        }
-
-        .action-btns button:hover {
-            background: var(--danger-light);
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .pagination a,
-        .pagination span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid var(--gray-200);
-            background: white;
-            color: var(--dark);
-            transition: all 0.15s ease;
-        }
-
-        .pagination a:hover {
-            background: var(--gray-50);
-            border-color: var(--gray-300);
-        }
-
-        .pagination .active {
-            background: var(--secondary);
-            color: white;
-            border-color: var(--secondary);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--gray-500);
-        }
-
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            color: var(--gray-300);
-            margin-bottom: 1rem;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            color: var(--dark);
-        }
-
-        .flash-message {
-            background: var(--danger-light);
-            color: var(--danger-dark);
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius-md);
-            border: 1px solid #fecaca;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 1.25rem;
-        }
-
-        .flash-message.success {
-            background: #dcfce7;
-            color: #166534;
-            border-color: #bbf7d0;
+        body {
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
 
-<body style="background: #f1f5f9;">
-    <nav class="navbar" style="border-bottom: 1px solid var(--gray-200); padding: 0.75rem 5%;">
-        <div class="nav-brand">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z" />
-            </svg>
-            <a href="/" style="color: inherit; text-decoration: none;">NutriComply</a>
-        </div>
-        <div class="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/history" style="color: var(--secondary); font-weight: 700;">History</a>
-            <a href="#">Settings</a>
-        </div>
-        <div class="nav-actions">
-            {% if current_user.is_authenticated %}
-            <div
-                style="width: 36px; height: 36px; background: #fed7aa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #9a3412; font-size: 0.8rem;">
-                {{ current_user.name[:2]|upper }}
+<body class="bg-background-light font-display text-slate-900 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-primary/10 px-6 lg:px-20 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 no-underline">
+                <div class="bg-primary p-2 rounded-lg text-white">
+                    <span class="material-symbols-outlined block">nutrition</span>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">NutriComply</h1>
+            </a>
+            <nav class="hidden md:flex items-center gap-8">
+                <a class="text-slate-500 hover:text-primary transition-colors font-medium no-underline"
+                    href="/dashboard">Dashboard</a>
+                <a class="text-primary font-semibold flex items-center gap-2 no-underline" href="/history">
+                    <span class="material-symbols-outlined text-[20px]">history</span> History
+                </a>
+                <a class="text-slate-500 hover:text-primary transition-colors font-medium no-underline"
+                    href="/settings">Settings</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                {% if current_user.is_authenticated %}
+                <a href="/logout"
+                    class="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-full transition-all no-underline">Logout</a>
+                <div
+                    class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border-2 border-primary/30">
+                    {{ current_user.name[:2]|upper }}
+                </div>
+                {% endif %}
             </div>
-            <a href="/logout" class="btn btn-outline" style="font-size: 0.85rem;">Logout</a>
-            {% endif %}
         </div>
-    </nav>
+    </header>
 
-    <div class="history-layout">
-        <div class="history-header">
+    <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
             <div>
-                <h2>Label History</h2>
-                <p>View and manage your previously generated nutrition labels</p>
+                <h2 class="text-3xl font-black tracking-tight flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-3xl">history</span> Label History
+                </h2>
+                <p class="text-slate-500 mt-1">View and manage your previously generated nutrition labels</p>
             </div>
-            <a href="/dashboard" class="btn btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                New Label
+            <a href="/dashboard"
+                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-emerald-500 text-white font-bold rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform no-underline">
+                <span class="material-symbols-outlined text-lg">add</span> New Label
             </a>
         </div>
 
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
         <div
-            class="flash-message {% if 'success' in message.lower() or 'deleted' in message.lower() %}success{% endif %}">
+            class="mb-4 px-4 py-3 rounded-xl {% if 'success' in message.lower() or 'deleted' in message.lower() %}bg-emerald-50 border border-emerald-200 text-emerald-700{% else %}bg-red-50 border border-red-200 text-red-700{% endif %} text-sm font-medium">
             {{ message }}
         </div>
         {% endfor %}
@@ -252,70 +89,72 @@
         {% endwith %}
 
         {% if records|length == 0 %}
-        <div class="history-table-wrapper">
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-                <h3>No labels generated yet</h3>
-                <p>Start by creating your first FSSAI-compliant nutrition label.</p>
-                <a href="/dashboard" class="btn btn-primary" style="margin-top: 1rem;">Generate Your First Label</a>
+        <!-- Empty State -->
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-16 text-center">
+            <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
+                <span class="material-symbols-outlined text-4xl">description</span>
             </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">No labels generated yet</h3>
+            <p class="text-slate-500 mb-6">Start by creating your first FSSAI-compliant nutrition label.</p>
+            <a href="/dashboard"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-colors no-underline">
+                Generate Your First Label
+            </a>
         </div>
         {% else %}
-        <div class="history-table-wrapper">
-            <table class="history-table">
-                <thead>
+        <!-- History Table -->
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 border-b border-slate-100">
                     <tr>
-                        <th>Product Name</th>
-                        <th>Created</th>
-                        <th>Compliance Score</th>
-                        <th style="text-align: right;">Actions</th>
+                        <th class="px-6 py-4 text-xs font-black uppercase text-slate-500 tracking-wider">Product Name
+                        </th>
+                        <th class="px-6 py-4 text-xs font-black uppercase text-slate-500 tracking-wider">Created</th>
+                        <th class="px-6 py-4 text-xs font-black uppercase text-slate-500 tracking-wider">Compliance
+                            Score</th>
+                        <th class="px-6 py-4 text-xs font-black uppercase text-slate-500 tracking-wider text-right">
+                            Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     {% for record in records %}
-                    <tr>
-                        <td>
-                            <strong>{{ record['product_name'] }}</strong>
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="font-semibold text-slate-900">{{ record['product_name'] }}</span>
                         </td>
-                        <td style="color: var(--gray-500); font-size: 0.85rem;">
-                            {{ record['created_at'] }}
-                        </td>
-                        <td>
+                        <td class="px-6 py-4 text-sm text-slate-500">{{ record['created_at'] }}</td>
+                        <td class="px-6 py-4">
                             {% if record['compliance_score'] >= 80 %}
-                            <span class="score-badge score-high">✓ {{ record['compliance_score'] }}%</span>
+                            <span
+                                class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">check_circle</span> {{
+                                record['compliance_score'] }}%
+                            </span>
                             {% elif record['compliance_score'] >= 50 %}
-                            <span class="score-badge score-mid">⚠ {{ record['compliance_score'] }}%</span>
+                            <span
+                                class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">warning</span> {{
+                                record['compliance_score'] }}%
+                            </span>
                             {% else %}
-                            <span class="score-badge score-low">✗ {{ record['compliance_score'] }}%</span>
+                            <span
+                                class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">cancel</span> {{
+                                record['compliance_score'] }}%
+                            </span>
                             {% endif %}
                         </td>
-                        <td>
-                            <div class="action-btns" style="justify-content: flex-end;">
-                                <a href="/download/{{ record['id'] }}" title="Download PDF">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                    </svg>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="/download/{{ record['id'] }}" title="Download PDF"
+                                    class="size-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-primary hover:text-white transition-all no-underline">
+                                    <span class="material-symbols-outlined text-lg">download</span>
                                 </a>
                                 <form action="/delete/{{ record['id'] }}" method="POST"
-                                    onsubmit="return confirm('Delete this label from history?');"
-                                    style="display: inline;">
-                                    <button type="submit" title="Delete">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
-                                            <polyline points="3 6 5 6 21 6"></polyline>
-                                            <path
-                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                            </path>
-                                        </svg>
+                                    onsubmit="return confirm('Delete this label from history?');" class="inline">
+                                    <button type="submit" title="Delete"
+                                        class="size-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer border-none">
+                                        <span class="material-symbols-outlined text-lg">delete</span>
                                     </button>
                                 </form>
                             </div>
@@ -327,40 +166,34 @@
         </div>
 
         {% if total_pages > 1 %}
-        <div class="pagination">
+        <div class="flex items-center justify-center gap-2 mt-8">
             {% if page > 1 %}
-            <a href="/history?page={{ page - 1 }}">‹</a>
+            <a href="/history?page={{ page - 1 }}"
+                class="size-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:border-primary hover:text-primary transition-all no-underline font-bold">‹</a>
             {% endif %}
 
             {% for p in range(1, total_pages + 1) %}
             {% if p == page %}
-            <span class="active">{{ p }}</span>
+            <span class="size-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">{{
+                p }}</span>
             {% else %}
-            <a href="/history?page={{ p }}">{{ p }}</a>
+            <a href="/history?page={{ p }}"
+                class="size-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:border-primary hover:text-primary transition-all no-underline text-sm font-medium">{{
+                p }}</a>
             {% endif %}
             {% endfor %}
 
-            {% if page < total_pages %} <a href="/history?page={{ page + 1 }}">›</a>
+            {% if page < total_pages %} <a href="/history?page={{ page + 1 }}"
+                class="size-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:border-primary hover:text-primary transition-all no-underline font-bold">
+                ›</a>
                 {% endif %}
         </div>
         {% endif %}
         {% endif %}
-    </div>
+    </main>
 
-    <footer
-        style="margin-top: 2rem; border-top: 1px solid var(--gray-200); padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; color: var(--gray-500); font-size: 0.85rem; background: white;">
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: var(--secondary);">
-                <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-            </svg>
-            &copy; 2026 NutriComply. FSSAI Gazetted Standard compliant.
-        </div>
-        <div style="display: flex; gap: 1.5rem;">
-            <a href="#">Documentation</a>
-            <a href="#">API Reference</a>
-            <a href="#">Support</a>
-        </div>
+    <footer class="mt-auto py-8 px-6 border-t border-slate-100 text-center bg-white">
+        <p class="text-slate-400 text-sm">© 2026 NutriComply AI. All Rights Reserved. Built for FSSAI Compliance.</p>
     </footer>
 </body>
 

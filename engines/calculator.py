@@ -76,6 +76,8 @@ def calculate_nutrition(standardized_ingredients, final_yield_weight, serving_si
 
     # Determine normalization weight
     normalization_weight = final_yield_weight if final_yield_weight > 0 else total_raw_weight
+    if normalization_weight <= 0:
+        normalization_weight = 1  # Prevent division by zero
     show_disclaimer = final_yield_weight <= 0
 
     # FSSAI requires values normalized per 100g of final yield matching weight

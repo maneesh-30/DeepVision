@@ -12,3 +12,5 @@ test_e2e_label.pdf
 # Python Cache
 __pycache__/
 *.pyc
+
+static/labels/*.pdf
