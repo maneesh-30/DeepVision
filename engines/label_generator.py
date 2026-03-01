@@ -41,12 +41,12 @@ def generate_pdf(label_data, output_path):
         ["Nutrient", "Per 100g", f"Per Serving ({serving_size_g}g)"],
         ["Energy", f"{per_100g.get('energy', 0)} kcal", f"{per_serving.get('energy', 0)} kcal"],
         ["Protein", f"{per_100g.get('protein', 0)} g", f"{per_serving.get('protein', 0)} g"],
-        ["Carbohydrate", f"{per_100g.get('carbs', 0)} g", f"{per_serving.get('carbs', 0)} g"],
-        ["  of which Total Sugars", f"{per_100g.get('sugar', 0)} g", f"{per_serving.get('sugar', 0)} g"],
-        ["  of which Added Sugars", f"{per_100g.get('added_sugar', 0)} g", f"{per_serving.get('added_sugar', 0)} g"],
         ["Total Fat", f"{per_100g.get('fat', 0)} g", f"{per_serving.get('fat', 0)} g"],
         ["  of which Saturated Fat", f"{per_100g.get('sat_fat', 0)} g", f"{per_serving.get('sat_fat', 0)} g"],
         ["  of which Trans Fat", f"{per_100g.get('trans_fat', 0)} g", f"{per_serving.get('trans_fat', 0)} g"],
+        ["Carbohydrate", f"{per_100g.get('carbs', 0)} g", f"{per_serving.get('carbs', 0)} g"],
+        ["  of which Total Sugars", f"{per_100g.get('sugar', 0)} g", f"{per_serving.get('sugar', 0)} g"],
+        ["    of which Added Sugars", f"{per_100g.get('added_sugar', 0)} g", f"{per_serving.get('added_sugar', 0)} g"],
         ["Sodium", f"{per_100g.get('sodium', 0)} mg", f"{per_serving.get('sodium', 0)} mg"],
     ]
 
@@ -59,8 +59,8 @@ def generate_pdf(label_data, output_path):
         ("GRID",         (0,0), (-1,-1), 0.5, colors.grey),
         ("ROWBACKGROUNDS",(0,1), (-1,-1), [colors.white, colors.HexColor("#E8EEF6")]),
         ("FONTNAME",     (0,1), (0,-1), "Helvetica-Bold"),
-        ("LEFTPADDING",  (0,3), (0,5), 16),  # Indent sub-rows
-        ("LEFTPADDING",  (0,7), (0,8), 16),
+        ("LEFTPADDING",  (0,4), (0,5), 16),   # Indent Sat Fat + Trans Fat
+        ("LEFTPADDING",  (0,7), (0,8), 16),   # Indent Total Sugars + Added Sugars
     ]))
     elements.append(t)
     elements.append(Spacer(1, 4*mm))

@@ -1,9 +1,80 @@
+# ─── Allergen Keyword Mapping (FSSAI 8 Major Allergen Categories) ───
+ALLERGEN_KEYWORDS = {
+    "Gluten": [
+        "wheat", "barley", "rye", "oats",
+        "maida", "atta", "semolina", "sooji",
+        "breadcrumb", "gluten"
+    ],
+    "Milk": [
+        "milk", "dairy", "cream", "butter",
+        "cheese", "ghee", "whey", "lactose",
+        "curd", "yogurt", "casein", "paneer",
+        "milk solids", "skimmed milk",
+        "whole milk", "milk powder"
+    ],
+    "Nut": [
+        "cashew", "almond", "walnut", "pistachio",
+        "peanut", "groundnut", "hazelnut", "pecan",
+        "macadamia", "pine nut", "brazil nut",
+        "chestnut", "nut", "kaju", "badam"
+    ],
+    "Egg": [
+        "egg", "albumin", "mayonnaise",
+        "lecithin", "anda"
+    ],
+    "Soy": [
+        "soy", "soya", "tofu", "tempeh",
+        "edamame", "miso"
+    ],
+    "Fish": [
+        "fish", "cod", "salmon", "tuna",
+        "sardine", "anchovy", "mackerel",
+        "hilsa", "rohu", "katla"
+    ],
+    "Shellfish": [
+        "shrimp", "prawn", "crab", "lobster",
+        "shellfish", "oyster", "mussel",
+        "scallop", "jhinga"
+    ],
+    "Sesame": [
+        "sesame", "til", "tahini",
+        "gingelly", "sesame oil"
+    ]
+}
+
+
+def detect_allergens(ingredient_name):
+    """Detect allergens using case-insensitive substring matching."""
+    detected = []
+    name_lower = ingredient_name.lower()
+    for allergen, keywords in ALLERGEN_KEYWORDS.items():
+        for keyword in keywords:
+            if keyword.lower() in name_lower:
+                detected.append(allergen)
+                break
+    return detected
+
+
 def apply_compliance(calculated_data):
     per_100g = calculated_data["per_100g"]
     per_serving = calculated_data["per_serving"]
-    allergens = calculated_data["allergens"]
+    db_allergens = calculated_data["allergens"]
     veg_type = calculated_data["veg_type"]
     ingredients = calculated_data["ingredients"]
+
+    # Collect all allergens from DB + keyword detection, deduplicated with preserved order
+    all_allergens = list(db_allergens)
+    for item in ingredients:
+        all_allergens.extend(detect_allergens(item["name"]))
+
+    # Remove duplicates while preserving order
+    seen = set()
+    allergens = []
+    for a in all_allergens:
+        a_clean = a.strip().title()
+        if a_clean and a_clean != 'None' and a_clean not in seen:
+            seen.add(a_clean)
+            allergens.append(a_clean)
 
     display = {}
     display_serving = {}
@@ -40,10 +111,9 @@ def apply_compliance(calculated_data):
     # Sodium warning (exceeds 600mg per 100g)
     sodium_warning = per_100g["sodium"] > 600
 
-    # Allergen statement format
+    # Allergen statement format (allergens list is already deduplicated and clean)
     if allergens:
-        all_sorted = sorted([a.strip().title() for a in allergens if a and a != 'none'])
-        allergen_statement = "Contains: " + ", ".join(all_sorted) if all_sorted else "No known allergens"
+        allergen_statement = "Contains: " + ", ".join(sorted(allergens))
     else:
         allergen_statement = "No known allergens"
 
